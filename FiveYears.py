@@ -6,6 +6,7 @@ import time
 TARGET_WIDTH = 80
 TARGET_HEIGHT = 25
 
+color_constants = [curses.COLOR_BLUE, curses.COLOR_CYAN, curses.COLOR_GREEN, curses.COLOR_MAGENTA, curses.COLOR_YELLOW]
 strs = ["HAPPY ", "FIVE ", "YEAR ", "ANNIVERSARY ", "!!!"]
 message = ''.join(strs)
 num_chars = len(message)
@@ -31,10 +32,22 @@ for i, c in enumerate(end_cols):
 
 def main(stdscr):
     locale.setlocale(locale.LC_ALL, '')
+    curses.start_color()
     curses.noecho()
     curses.cbreak()
     curses.curs_set(0)
     stdscr.clear()
+
+    colors = []
+    for i, c in enumerate(color_constants):
+        curses.init_pair(i+1, c, curses.COLOR_BLACK)
+        colors.append(curses.color_pair(i+1))
+
+    curses.init_pair(6, curses.COLOR_WHITE, curses.COLOR_BLACK)
+    stdscr.bkgd(' ', curses.color_pair(6))
+
+    curses.init_pair(7, curses.COLOR_RED, curses.COLOR_BLACK)
+    heart_color = curses.color_pair(7)
 
     height, width = stdscr.getmaxyx()
 
@@ -60,13 +73,13 @@ def main(stdscr):
 
     stdscr.clear()
     for i, s in enumerate(strs):
-        animate_message_str(stdscr, s, starts[i], end_cols[i])
+        animate_message_str(stdscr, s, starts[i], end_cols[i], colors[i])
     time.sleep(0.5)
 
     points = []
     while True:
         points = randomized_heart_points(5, points)
-        draw_hearts(stdscr, points)
+        draw_hearts(stdscr, points, heart_color)
         stdscr.refresh()
         time.sleep(1)
         erase_hearts(stdscr, points)
@@ -74,7 +87,7 @@ def main(stdscr):
     stdscr.getch()
 
 
-def animate_message_str(stdscr, s, start, end_col):
+def animate_message_str(stdscr, s, start, end_col, color):
     r, c = start 
     points_to_print = []
     
@@ -84,7 +97,7 @@ def animate_message_str(stdscr, s, start, end_col):
         c += 1
 
         for p in points_to_print:
-            stdscr.addstr(p[0], p[1], s)
+            stdscr.addstr(p[0], p[1], s, color)
             stdscr.refresh()
         time.sleep(0.05)
 
@@ -103,9 +116,9 @@ def randomized_heart_points(num_hearts, prev_points):
             point_space.append((r, c))
     return random.sample(point_space, num_hearts)
 
-def draw_hearts(stdscr, points):
+def draw_hearts(stdscr, points, color):
     for p in points:
-        stdscr.addstr(p[0], p[1], "♥")
+        stdscr.addstr(p[0], p[1], "♥", color)
 
 def erase_hearts(stdscr, points):
     for p in points:
