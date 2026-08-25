@@ -66,10 +66,18 @@ def main(stdscr):
                 stdscr.addstr(2, 0, f"decrease window size horizontally until it's {TARGET_WIDTH} (currently {width})")
             stdscr.getch()
             height, width = stdscr.getmaxyx()
-        stdscr.clear()
-        stdscr.getch()
-        stdscr.addstr(0, 0, "all done! press any key to see your card")
-        stdscr.getch()
+
+            if height == TARGET_HEIGHT and width == TARGET_WIDTH:
+                stdscr.clear()
+                stdscr.addstr(0, 0, "all done! press any key to see your card")
+        
+                while True:
+                    ch = stdscr.getch()
+                    if ch == curses.KEY_RESIZE:
+                        height, width = stdscr.getmaxyx()
+                        break
+                    else:
+                        break
 
     stdscr.clear()
     for i, s in enumerate(strs):
@@ -81,10 +89,9 @@ def main(stdscr):
         points = randomized_heart_points(5, points)
         draw_hearts(stdscr, points, heart_color)
         stdscr.refresh()
-        time.sleep(1)
+        time.sleep(0.5)
         erase_hearts(stdscr, points)
         stdscr.refresh()
-    stdscr.getch()
 
 
 def animate_message_str(stdscr, s, start, end_col, color):
@@ -109,8 +116,8 @@ def animate_message_str(stdscr, s, start, end_col, color):
 
 def randomized_heart_points(num_hearts, prev_points):
     point_space = []
-    for r in range(TARGET_HEIGHT):
-        for c in range(TARGET_WIDTH):
+    for r in range(TARGET_HEIGHT-1):
+        for c in range(TARGET_WIDTH-1):
             if (r, c) in prev_points or (r == message_row and message_col <= c < message_col + num_chars):
                 continue
             point_space.append((r, c))
@@ -120,9 +127,10 @@ def draw_hearts(stdscr, points, color):
     for p in points:
         stdscr.addstr(p[0], p[1], "♥", color)
 
+
 def erase_hearts(stdscr, points):
     for p in points:
         stdscr.addstr(p[0], p[1], " ")
 
 curses.wrapper(main)
-
+ 
