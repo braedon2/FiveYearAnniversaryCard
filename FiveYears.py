@@ -22,17 +22,18 @@ STARTS = [(0, 12), (24, 18), (0, 23), (24, 28), (0, 40)]
 
 def main(stdscr):
     locale.setlocale(locale.LC_ALL, '')
-    curses.start_color()
     curses.noecho()
     curses.cbreak()
     curses.curs_set(0)
     stdscr.clear()
 
-    colors = []
-    for i, c in enumerate(COLOR_CONSTANTS):
-        curses.init_pair(i+1, c, curses.COLOR_BLACK)
+    curses.start_color()
+    colors = [] # stores the curses color pairs used to print each word
+    for i, color_constant in enumerate(COLOR_CONSTANTS):
+        curses.init_pair(i+1, color_constant, curses.COLOR_BLACK)
         colors.append(curses.color_pair(i+1))
 
+    # the default color pair for printing, white on black
     curses.init_pair(6, curses.COLOR_WHITE, curses.COLOR_BLACK)
     stdscr.bkgd(' ', curses.color_pair(6))
 
@@ -41,33 +42,32 @@ def main(stdscr):
 
     height, width = stdscr.getmaxyx()
 
-    if height != TARGET_HEIGHT or width != TARGET_WIDTH:
-        while height != TARGET_HEIGHT or width != TARGET_WIDTH:
+    while height != TARGET_HEIGHT or width != TARGET_WIDTH:
+        stdscr.clear()
+        stdscr.addstr(0, 0, "first things first!")
+        if height < TARGET_HEIGHT:
+            stdscr.addstr(1, 0, f"increase window size vertically until it's {TARGET_HEIGHT} (currently {height})")
+        elif height > TARGET_HEIGHT:
+            stdscr.addstr(1, 0, f"decrease window size vertically until it's {TARGET_HEIGHT} (currently {height})")
+
+        if width < TARGET_WIDTH:
+            stdscr.addstr(2, 0, f"increase window size horizontally until it's {TARGET_WIDTH} (currently {width})")
+        elif width > TARGET_WIDTH:
+            stdscr.addstr(2, 0, f"decrease window size horizontally until it's {TARGET_WIDTH} (currently {width})")
+        stdscr.getch()
+        height, width = stdscr.getmaxyx()
+
+        if height == TARGET_HEIGHT and width == TARGET_WIDTH:
             stdscr.clear()
-            stdscr.addstr(0, 0, "first things first!")
-            if height < TARGET_HEIGHT:
-                stdscr.addstr(1, 0, f"increase window size vertically until it's {TARGET_HEIGHT} (currently {height})")
-            elif height > TARGET_HEIGHT:
-                stdscr.addstr(1, 0, f"decrease window size vertically until it's {TARGET_HEIGHT} (currently {height})")
-
-            if width < TARGET_WIDTH:
-                stdscr.addstr(2, 0, f"increase window size horizontally until it's {TARGET_WIDTH} (currently {width})")
-            elif width > TARGET_WIDTH:
-                stdscr.addstr(2, 0, f"decrease window size horizontally until it's {TARGET_WIDTH} (currently {width})")
-            stdscr.getch()
-            height, width = stdscr.getmaxyx()
-
-            if height == TARGET_HEIGHT and width == TARGET_WIDTH:
-                stdscr.clear()
-                stdscr.addstr(0, 0, "all done! press any key to see your card")
-        
-                while True:
-                    ch = stdscr.getch()
-                    if ch == curses.KEY_RESIZE:
-                        height, width = stdscr.getmaxyx()
-                        break
-                    else:
-                        break
+            stdscr.addstr(0, 0, "all done! press any key to see your card")
+    
+            while True:
+                ch = stdscr.getch()
+                if ch == curses.KEY_RESIZE:
+                    height, width = stdscr.getmaxyx()
+                    break
+                else:
+                    break
 
     stdscr.clear()
     for i, s in enumerate(STRS):
