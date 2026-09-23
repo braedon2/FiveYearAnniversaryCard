@@ -3,32 +3,22 @@ import locale
 import random
 import time
 
+# a small fixed size looks best
 TARGET_WIDTH = 80
 TARGET_HEIGHT = 25
-
-color_constants = [curses.COLOR_BLUE, curses.COLOR_CYAN, curses.COLOR_GREEN, curses.COLOR_MAGENTA, curses.COLOR_YELLOW]
-strs = ["HAPPY ", "FIVE ", "YEAR ", "ANNIVERSARY ", "!!!"]
-message = ''.join(strs)
-num_chars = len(message)
-message_row = TARGET_HEIGHT // 2
-message_col = (TARGET_WIDTH - num_chars) // 2
-
-end_cols = [] # the column where each string will end up after its animation
-for i, s in enumerate(strs):
-    if i == 0:
-        end_cols.append(message_col)
-    else:
-        end_cols.append(end_cols[i-1] + len(strs[i-1]))
-
-starts = [] # tuples of row column pairs
-for i, c in enumerate(end_cols):
-    if i % 2 == 0:
-        starts.append(
-            (0, c-message_row))
-    else:
-        d = TARGET_HEIGHT - 1 - message_row 
-        starts.append(
-            (TARGET_HEIGHT-1, c-d)) 
+# its convenient to have the separated strings and the whole message in their own variables
+STRS = ["HAPPY ", "FIVE ", "YEAR ", "ANNIVERSARY ", "!!!"]
+MESSAGE = ''.join(STRS)
+NUM_CHARS = len(MESSAGE)
+# each word has its own color. more configuration is needed when we have our curses screen object
+COLOR_CONSTANTS = [curses.COLOR_BLUE, curses.COLOR_CYAN, curses.COLOR_GREEN, curses.COLOR_MAGENTA, curses.COLOR_YELLOW]
+# where the final message is printed after each word has been animated
+MESSAGE_ROW = TARGET_HEIGHT // 2
+MESSAGE_COL = (TARGET_WIDTH - NUM_CHARS) // 2
+# the column where each string will end up after its animation
+END_COLS = [24, 30, 35, 40, 52] 
+# tuples of row column pairs for where each string starts its animation
+STARTS = [(0, 12), (24, 18), (0, 23), (24, 28), (0, 40)] 
 
 def main(stdscr):
     locale.setlocale(locale.LC_ALL, '')
@@ -39,7 +29,7 @@ def main(stdscr):
     stdscr.clear()
 
     colors = []
-    for i, c in enumerate(color_constants):
+    for i, c in enumerate(COLOR_CONSTANTS):
         curses.init_pair(i+1, c, curses.COLOR_BLACK)
         colors.append(curses.color_pair(i+1))
 
@@ -80,8 +70,8 @@ def main(stdscr):
                         break
 
     stdscr.clear()
-    for i, s in enumerate(strs):
-        animate_message_str(stdscr, s, starts[i], end_cols[i], colors[i])
+    for i, s in enumerate(STRS):
+        animate_message_str(stdscr, s, STARTS[i], END_COLS[i], colors[i])
     time.sleep(0.5)
 
     points = []
@@ -100,7 +90,7 @@ def animate_message_str(stdscr, s, start, end_col, color):
     
     while c <= end_col:
         points_to_print.append((r, c))
-        r += 1 if start[0] < message_row else -1
+        r += 1 if start[0] < MESSAGE_ROW else -1
         c += 1
 
         for p in points_to_print:
@@ -118,7 +108,7 @@ def randomized_heart_points(num_hearts, prev_points):
     point_space = []
     for r in range(TARGET_HEIGHT-1):
         for c in range(TARGET_WIDTH-1):
-            if (r, c) in prev_points or (r == message_row and message_col <= c < message_col + num_chars):
+            if (r, c) in prev_points or (r == MESSAGE_ROW and MESSAGE_COL <= c < MESSAGE_COL + NUM_CHARS):
                 continue
             point_space.append((r, c))
     return random.sample(point_space, num_hearts)
