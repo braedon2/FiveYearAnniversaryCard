@@ -25,9 +25,8 @@ def main(stdscr):
     curses.noecho()
     curses.cbreak()
     curses.curs_set(0)
-    stdscr.clear()
-
     curses.start_color()
+
     colors = [] # stores the curses color pairs used to print each word
     for i, color_constant in enumerate(COLOR_CONSTANTS):
         curses.init_pair(i+1, color_constant, curses.COLOR_BLACK)
@@ -40,9 +39,9 @@ def main(stdscr):
     curses.init_pair(7, curses.COLOR_RED, curses.COLOR_BLACK)
     heart_color = curses.color_pair(7)
 
-    height, width = stdscr.getmaxyx()
-
-    while height != TARGET_HEIGHT or width != TARGET_WIDTH:
+    # loop prompts user (my partner) to resize terminal until it is the target size
+    while (maxyx := stdscr.getmaxyx()) != (TARGET_HEIGHT, TARGET_WIDTH):
+        height, width = maxyx
         stdscr.clear()
         stdscr.addstr(0, 0, "first things first!")
         if height < TARGET_HEIGHT:
@@ -60,11 +59,12 @@ def main(stdscr):
         if height == TARGET_HEIGHT and width == TARGET_WIDTH:
             stdscr.clear()
             stdscr.addstr(0, 0, "all done! press any key to see your card")
-    
+
+            # pressing any key here will break out of the parent loop and start the animation unless the "keypress"
+            # is actually a window resize whereby it will re-enter the window resize prompt flow
             while True:
                 ch = stdscr.getch()
                 if ch == curses.KEY_RESIZE:
-                    height, width = stdscr.getmaxyx()
                     break
                 else:
                     break
