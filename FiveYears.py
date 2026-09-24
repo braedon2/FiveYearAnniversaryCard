@@ -39,7 +39,24 @@ def main(stdscr):
     curses.init_pair(7, curses.COLOR_RED, curses.COLOR_BLACK)
     heart_color = curses.color_pair(7)
 
-    # loop prompts user (my partner) to resize terminal until it is the target size
+    prompt_to_resize(stdscr)
+
+    stdscr.clear()
+    for i, s in enumerate(STRS):
+        animate_message_str(stdscr, s, STARTS[i], END_COLS[i], colors[i])
+    time.sleep(0.5)
+
+    points = []
+    while True:
+        points = randomized_heart_points(5, points)
+        draw_hearts(stdscr, points, heart_color)
+        stdscr.refresh()
+        time.sleep(0.5)
+        erase_hearts(stdscr, points)
+        stdscr.refresh()
+
+# prompts user (my partner) to resize the terminal until it is the target size
+def prompt_to_resize(stdscr):
     while (maxyx := stdscr.getmaxyx()) != (TARGET_HEIGHT, TARGET_WIDTH):
         height, width = maxyx
         stdscr.clear()
@@ -69,40 +86,23 @@ def main(stdscr):
                 else:
                     break
 
-    stdscr.clear()
-    for i, s in enumerate(STRS):
-        animate_message_str(stdscr, s, STARTS[i], END_COLS[i], colors[i])
-    time.sleep(0.5)
-
-    points = []
-    while True:
-        points = randomized_heart_points(5, points)
-        draw_hearts(stdscr, points, heart_color)
-        stdscr.refresh()
-        time.sleep(0.5)
-        erase_hearts(stdscr, points)
-        stdscr.refresh()
-
 
 def animate_message_str(stdscr, s, start, end_col, color):
-    r, c = start 
-    points_to_print = []
+    start_row, start_col = start 
+    print_points = list(zip(
+        range(start_row, MESSAGE_ROW+1) if start_row < MESSAGE_ROW else range(start_row, MESSAGE_ROW-1, -1),
+        range(start_col, end_col+1)))
     
-    while c <= end_col:
-        points_to_print.append((r, c))
-        r += 1 if start[0] < MESSAGE_ROW else -1
-        c += 1
-
-        for p in points_to_print:
-            stdscr.addstr(p[0], p[1], s, color)
-            stdscr.refresh()
-        time.sleep(0.05)
-
-    while len(points_to_print) > 1:
-        p = points_to_print.pop(0)
-        stdscr.addstr(p[0], p[1], ' ' * len(s))
+    for row, col in print_points:
+        stdscr.addstr(row, col, s, color)
         stdscr.refresh()
         time.sleep(0.05)
+
+    for row, col in print_points[:-1]:
+        stdscr.addstr(row, col, ' ' * len(s))
+        stdscr.refresh()
+        time.sleep(0.05)
+
 
 def randomized_heart_points(num_hearts, prev_points):
     point_space = []
