@@ -47,13 +47,15 @@ def main(stdscr):
     time.sleep(0.5)
 
     points = []
-    while True:
-        points = randomized_heart_points(5, points)
-        draw_hearts(stdscr, points, heart_color)
+    while points := randomized_heart_points(5, points):
+        for p in points:
+            stdscr.addstr(p[0], p[1], "♥", heart_color)
         stdscr.refresh()
         time.sleep(0.5)
-        erase_hearts(stdscr, points)
+        for p in points:
+                stdscr.addstr(p[0], p[1], " ")
         stdscr.refresh()
+
 
 # prompts user (my partner) to resize the terminal until it is the target size
 def prompt_to_resize(stdscr):
@@ -70,6 +72,7 @@ def prompt_to_resize(stdscr):
             stdscr.addstr(2, 0, f"increase window size horizontally until it's {TARGET_WIDTH} (currently {width})")
         elif width > TARGET_WIDTH:
             stdscr.addstr(2, 0, f"decrease window size horizontally until it's {TARGET_WIDTH} (currently {width})")
+
         stdscr.getch()
         height, width = stdscr.getmaxyx()
 
@@ -98,29 +101,18 @@ def animate_message_str(stdscr, s, start, end_col, color):
         stdscr.refresh()
         time.sleep(0.05)
 
-    for row, col in print_points[:-1]:
+    for row, col in print_points[:-1]: # keep the last point as that forms the final message
         stdscr.addstr(row, col, ' ' * len(s))
         stdscr.refresh()
         time.sleep(0.05)
 
 
 def randomized_heart_points(num_hearts, prev_points):
-    point_space = []
-    for r in range(TARGET_HEIGHT-1):
-        for c in range(TARGET_WIDTH-1):
-            if (r, c) in prev_points or (r == MESSAGE_ROW and MESSAGE_COL <= c < MESSAGE_COL + NUM_CHARS):
-                continue
-            point_space.append((r, c))
+    point_space = [
+        (r, c) for r in range(TARGET_HEIGHT-1) for c in range(TARGET_WIDTH-1)
+        if (r, c) not in prev_points and not (r == MESSAGE_ROW and MESSAGE_COL <= c < MESSAGE_COL + NUM_CHARS)
+    ]
     return random.sample(point_space, num_hearts)
-
-def draw_hearts(stdscr, points, color):
-    for p in points:
-        stdscr.addstr(p[0], p[1], "♥", color)
-
-
-def erase_hearts(stdscr, points):
-    for p in points:
-        stdscr.addstr(p[0], p[1], " ")
 
 curses.wrapper(main)
  
