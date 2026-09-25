@@ -48,12 +48,12 @@ def main(stdscr):
 
     points = []
     while points := randomized_heart_points(5, points):
-        for p in points:
-            stdscr.addstr(p[0], p[1], "♥", heart_color)
+        for r, c in points:
+            stdscr.addstr(r, c, "♥", heart_color)
         stdscr.refresh()
         time.sleep(0.5)
-        for p in points:
-                stdscr.addstr(p[0], p[1], " ")
+        for r, c in points:
+            stdscr.addstr(r, c, " ")
         stdscr.refresh()
 
 
