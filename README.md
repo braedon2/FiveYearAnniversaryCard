@@ -9,6 +9,6 @@ is one of my pinned projects.
 Click the first image to go to the asciinema recording for a better viewing 
 experience. If the link doesn't work the gif below acts as a backup.
 
-[![asciicast](https://asciinema.org/a/1266549.svg)](https://asciinema.org/a/1266549)
+[![asciicast](https://asciinema.org/a/1266549.png)](https://asciinema.org/a/1266549)
 
 ![Demo animation](demo.gif)
